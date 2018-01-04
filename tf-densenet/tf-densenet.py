@@ -133,7 +133,7 @@ def train(sess, global_step, epoch, batch_size, model, keep_prob, lr, reg, train
         epoch_step = step * batch_size / 50000
 
         feed_dict = {
-            model['X']: batch_images.reshape(-1, 32, 32, 3), 
+            model['X']: batch_images.reshape(-1, 3, 32, 32).transpose(0, 2, 3, 1),
             model['y']: batch_labels,
             model['keep_prob']: keep_prob,
             model['learning_rate']: lr,
@@ -172,7 +172,7 @@ def test(sess, global_step, epoch, model, keep_prob, lr, reg, test_writer):
 
     for X_test, y_test in generate_test_batch(batch_size):
         feed_dict = {
-            model['X']: X_test.reshape(-1, 32, 32, 3),
+            model['X']: X_test.reshape(-1, 3, 32, 32).transpose(0, 2, 3, 1),
             model['y']: y_test,
             model['keep_prob']: keep_prob,
             model['learning_rate']: lr,
