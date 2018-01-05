@@ -1,9 +1,5 @@
 import tensorflow as tf
-import numpy as np
 from six.moves import xrange
-import datetime as dt
-import os
-import math
 
 def dense_block_layers(x, num_dense_layer, growth_rate, dropout):
     N, H, W, C = x.shape
@@ -86,11 +82,12 @@ def densenet_model(growth_rate):
     with tf.variable_scope("loss") as loss_scope:
         softmax_loss = tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=tf.one_hot(y, 10), name="softmax")
         avg_softmax_loss = tf.reduce_mean(softmax_loss, name="avg_softmax_loss")
+        l2_loss = tf.add_n([ tf.nn.l2_loss(variable) for variable in tf.trainable_variables() ])
+        total_loss = avg_softmax_loss + (l2_loss * regularization)
 
     with tf.variable_scope("optimizer") as optimizer_scope:
-        #train_step = tf.train.AdamOptimizer(1e-3).minimize(avg_softmax_loss)
-        l2_loss = tf.add_n([ tf.nn.l2_loss(variable) for variable in tf.trainable_variables() ])
-        train_step = tf.train.MomentumOptimizer(learning_rate, momentum=0.9, use_nesterov=True).minimize(avg_softmax_loss + (l2_loss * regularization))
+        #train_step = tf.train.AdamOptimizer(1e-3).minimize(total_loss)
+        train_step = tf.train.MomentumOptimizer(learning_rate, momentum=0.9, use_nesterov=True).minimize(total_loss)
 
     with tf.variable_scope("accuracy") as accuracy_scope:
         predictions = tf.argmax(logits, axis=1, output_type=tf.int32, name="predict")
@@ -112,7 +109,7 @@ def densenet_model(growth_rate):
         'predictions': correct_predictions,
         'correct_predictions': count_correct_predictions,
         'accuracy': accuracy, 
-        'loss': avg_softmax_loss, 
+        'loss': total_loss, 
         'train_step': train_step, 
         'summaries': summaries
     }
