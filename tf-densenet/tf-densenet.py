@@ -124,13 +124,13 @@ def summarize_scalar(writer, tag, value, step):
 
 
 def train(sess, global_step, epoch, batch_size, model, keep_prob, lr, reg, train_writer):
-    step = 1
+    step = 0
     print_every_n_steps = 50
     total_train_accuracy = 0.
     total_train_loss = 0.
 
     for batch_images, batch_labels in generate_train_batch(batch_size):
-        epoch_step = step * batch_size / 50000
+        epoch_step = (step+1) * batch_size / 50000
 
         feed_dict = {
             model['X']: batch_images.reshape(-1, 3, 32, 32).transpose(0, 2, 3, 1),
@@ -150,7 +150,7 @@ def train(sess, global_step, epoch, batch_size, model, keep_prob, lr, reg, train
             total_train_loss += batch_loss
 
             print("{} : step={} epoch_step={:.2f} batch_loss={:.2f} batch_acc={:.4f} train_loss={:.2f} train_acc={:.4f}".format(
-                  dt.datetime.now(), global_step + step, epoch_step + epoch - 1, batch_loss, batch_acc, total_train_loss / step, total_train_accuracy / step), flush=True)
+                  dt.datetime.now(), global_step + step, epoch_step + epoch - 1, batch_loss, batch_acc, total_train_loss / (step+1), total_train_accuracy / (step+1)), flush=True)
         else:
             _, batch_acc, batch_loss = sess.run([model['train_step'], model['accuracy'], model['loss']], feed_dict)
             total_train_accuracy += batch_acc
@@ -158,11 +158,14 @@ def train(sess, global_step, epoch, batch_size, model, keep_prob, lr, reg, train
 
         step += 1
 
-    summarize_scalar(train_writer, "global_summary/loss", total_train_loss / step, epoch)
-    summarize_scalar(train_writer, "global_summary/accuracy", total_train_accuracy / step, epoch)
+    total_train_loss /= step
+    total_train_accuracy /= step
+
+    summarize_scalar(train_writer, "global_summary/loss", total_train_loss, epoch)
+    summarize_scalar(train_writer, "global_summary/accuracy", total_train_accuracy, epoch)
     train_writer.flush()
 
-    return total_train_loss / step, total_train_accuracy / step
+    return total_train_loss, total_train_accuracy
 
 
 def test(sess, global_step, epoch, model, keep_prob, lr, reg, test_writer):
@@ -227,8 +230,8 @@ def main():
 
             global_step += num_batches_per_epoch
 
-            print("{} : EPOCH FINISHED={} step={} epoch_step={:.2f} train_loss={:.2f} train_acc={:.4f} test_loss={:.2f} test_acc={:.4f}".format(
-                  dt.datetime.now(), epoch, global_step, epoch, total_train_loss, total_train_accuracy, total_test_loss, total_test_accuracy), flush=True)
+            print("{} : step={} epoch_step={:.4f} train_loss={:.4f} train_acc={:.4f} test_loss={:.4f} test_acc={:.4f} EPOCH FINISHED={}".format(
+                  dt.datetime.now(), epoch, global_step, epoch, total_train_loss, total_train_accuracy, total_test_loss, total_test_accuracy, epoch), flush=True)
 
             saver.save(sess, os.path.join(train_logdir, 'densenet-cifar10'), global_step=epoch)
                 
