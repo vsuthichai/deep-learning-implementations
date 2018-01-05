@@ -1,41 +1,31 @@
-import pickle
+import tensorflow as tf
 import numpy as np
+import pickle
+import datetime as dt
+import os
+import math
 from six.moves import xrange
-
-cifar10_train_data = None
-cifar10_train_labels = None
-cifar10_test_data = None
-cifar10_test_labels = None
-
-def load_cifar10():
-    global cifar10_train_data, cifar10_train_labels, cifar10_test_data, cifar10_test_labels
-
-    with open("cifar-10-batches-py/data_batch_1", "rb") as f:
-        db1 = pickle.load(f, encoding='bytes')
-    with open("cifar-10-batches-py/data_batch_2", "rb") as f:
-        db2 = pickle.load(f, encoding='bytes')
-    with open("cifar-10-batches-py/data_batch_3", "rb") as f:
-        db3 = pickle.load(f, encoding='bytes')
-    with open("cifar-10-batches-py/data_batch_4", "rb") as f:
-        db4 = pickle.load(f, encoding='bytes')
-    with open("cifar-10-batches-py/data_batch_5", "rb") as f:
-        db5 = pickle.load(f, encoding='bytes')
-        
-    cifar10_train_data = np.concatenate([db1[b'data'], db2[b'data'], db3[b'data'], db4[b'data'], db5[b'data']], axis=0)
-    cifar10_train_labels = np.array(db1[b'labels'] + db2[b'labels'] + db3[b'labels'] + db4[b'labels'] + db5[b'labels'])
-
-    with open("cifar-10-batches-py/test_batch", "rb") as f:
-        db1 = pickle.load(f, encoding='bytes')
-
-    cifar10_test_data = np.array(db1[b'data'])
-    cifar10_test_labels = np.array(db1[b'labels'])
+from densenet import densenet_model
 
 
 def generate_train_batch(batch_size=64):
-    global cifar10_train_data, cifar10_train_labels
+    if not hasattr(generate_train_batch, 'cifar10_train_data') or not hasattr(generate_train_batch, 'cifar10_train_labels'):
+        with open("cifar-10-batches-py/data_batch_1", "rb") as f:
+            db1 = pickle.load(f, encoding='bytes')
+        with open("cifar-10-batches-py/data_batch_2", "rb") as f:
+            db2 = pickle.load(f, encoding='bytes')
+        with open("cifar-10-batches-py/data_batch_3", "rb") as f:
+            db3 = pickle.load(f, encoding='bytes')
+        with open("cifar-10-batches-py/data_batch_4", "rb") as f:
+            db4 = pickle.load(f, encoding='bytes')
+        with open("cifar-10-batches-py/data_batch_5", "rb") as f:
+            db5 = pickle.load(f, encoding='bytes')
+        
+        generate_train_batch.cifar10_train_data = np.concatenate([db1[b'data'], db2[b'data'], db3[b'data'], db4[b'data'], db5[b'data']], axis=0)
+        generate_train_batch.cifar10_train_labels = np.array(db1[b'labels'] + db2[b'labels'] + db3[b'labels'] + db4[b'labels'] + db5[b'labels'])
 
-    if cifar10_train_data is None or cifar10_train_labels is None:
-        load_cifar10()
+    cifar10_train_data = generate_train_batch.cifar10_train_data
+    cifar10_train_labels = generate_train_batch.cifar10_train_labels
 
     indices = np.arange(len(cifar10_train_labels))
     np.random.shuffle(indices)
@@ -47,10 +37,14 @@ def generate_train_batch(batch_size=64):
 
 
 def generate_test_batch(batch_size):
-    global cifar10_test_data, cifar10_test_labels
+    if not hasattr(generate_test_batch, 'cifar10_test_data') or not hasattr(generate_test_batch, 'cifar10_test_labels'):
+        with open("cifar-10-batches-py/test_batch", "rb") as f:
+            db1 = pickle.load(f, encoding='bytes')
+        generate_test_batch.cifar10_test_data = np.array(db1[b'data'])
+        generate_test_batch.cifar10_test_labels = np.array(db1[b'labels'])
 
-    if cifar10_test_data is None or cifar10_test_labels is None:
-        load_cifar10()
+    cifar10_test_data = generate_test_batch.cifar10_test_data
+    cifar10_test_labels = generate_test_batch.cifar10_test_labels
 
     indices = np.arange(len(cifar10_test_labels))
     np.random.shuffle(indices)
@@ -59,6 +53,7 @@ def generate_test_batch(batch_size):
 
     for batch_index in xrange(0, len(cifar10_test_labels), batch_size):
         yield data[batch_index : batch_index + batch_size], labels[batch_index : batch_index + batch_size]
+
 
 def summarize_scalar(writer, tag, value, step):
     summary = tf.Summary(value=[tf.Summary.Value(tag=tag, simple_value=value)])
@@ -169,7 +164,6 @@ def main():
 
             total_train_loss, total_train_accuracy = train(sess, global_step, epoch, batch_size, model, keep_prob, lr, reg, train_writer)
             total_test_loss, total_test_accuracy = test(sess, global_step, epoch, model, keep_prob, lr, reg, test_writer)
-
             global_step += num_batches_per_epoch
 
             print("{} : step={} epoch_step={:.4f} train_loss={:.4f} train_acc={:.4f} test_loss={:.4f} test_acc={:.4f} EPOCH FINISHED={}".format(
@@ -182,6 +176,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-__all__ = ['generate_train_batch', 'generate_test_batch']
 

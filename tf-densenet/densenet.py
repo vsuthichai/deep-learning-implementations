@@ -4,7 +4,6 @@ from six.moves import xrange
 import datetime as dt
 import os
 import math
-from load_cifar10 import generate_train_batch, generate_test_batch
 
 def dense_block_layers(x, num_dense_layer, growth_rate, dropout):
     N, H, W, C = x.shape
