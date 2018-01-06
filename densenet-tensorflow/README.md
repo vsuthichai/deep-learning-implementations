@@ -12,14 +12,14 @@ Python 3.5
 
 ## Implementation Details
 
-Strong effort was made to keep the training details as close to the paper as possible.
+Strong effort was made to keep the training details as close to the paper as possible.  This was trained on a single Nvidia GTX 1080 gpu and took 13+ hours.
 
 * MomentumOptimizer with learning rate 1e-1.  Divide learning rate by 10 at epoch 150 and 225.
 * Batch size 64
 * Dropout probability of 0.2, ie. keep_prob = 0.8
 * Growth rate k = 12
 * Weight decay for L2 regularization 1e-4
-* He initialization of convolutional filters
+* He initialization of convolutional filters and no convolutional bias
 
 ## Results
 
