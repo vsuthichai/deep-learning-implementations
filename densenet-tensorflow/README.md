@@ -14,6 +14,7 @@ Figure 2: A deep DenseNet with three dense blocks.
 ## Prerequisites
 
 Python 3.5
+Python 2.7 - I have not tested this on Python 2.7, but I welcome anyone who'd like to try it and provide me with feedback.
 
 * TensorFlow 1.4+
 * six
@@ -21,7 +22,7 @@ Python 3.5
 
 ## Usage
 
-Default hyperparameters have already been specified.  However, they can be changed if so desired.  `--log_dir` and `--cifar10_dir` must be specified in order to execute the training script.  All other parameters can be left a default.
+Default hyperparameters have already been specified.  However, they can be changed if so desired.  `--log_dir` and `--cifar10_dir` must be specified in order to execute the training script.  All other parameters can be left to default.
 
 ```
 usage: train_cifar10.py [-h] [--lr LR] [--batch_size BATCH_SIZE]
