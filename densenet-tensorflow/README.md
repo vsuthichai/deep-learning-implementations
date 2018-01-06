@@ -14,6 +14,7 @@ Figure 2: A deep DenseNet with three dense blocks.
 ## Prerequisites
 
 Python 3.5
+
 Python 2.7 - I have not tested this on Python 2.7, but I welcome anyone who'd like to try it and provide me with feedback.
 
 * TensorFlow 1.4+
