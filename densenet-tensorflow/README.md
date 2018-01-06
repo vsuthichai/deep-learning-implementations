@@ -27,11 +27,13 @@ Assuming your environment is setup properly, make sure to point the script to yo
 python train_cifar10.py
 ```
 
+A summary of the loss and accuracy is written to disk every 50 training steps, and a model is saved every epoch.
+
 ## Implementation Details
 
 Strong effort was made to keep the training details as close to the paper as possible.  This was trained on a single Nvidia GTX 1080 gpu and took 13+ hours.
 
-* MomentumOptimizer with learning rate 1e-1.  Divide learning rate by 10 at epoch 150 and 225.
+* MomentumOptimizer with learning rate 1e-1 and momentum 0.9.  Divide learning rate by 10 at epoch 150 and 225.
 * Batch size 64
 * Dropout probability of 0.2, ie. keep_prob = 0.8
 * Growth rate k = 12
