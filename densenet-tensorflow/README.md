@@ -48,7 +48,7 @@ The figure below is a screenshot of the summary plots on TensorBoard after train
 
 ## Citation
 
-Citation of original publication found below.  However, The TensorFlow re-implementation is my own work and can be used freely for learning purposes.  
+Citation of original publication found below.  However, the TensorFlow re-implementation is my own work and can be used freely for learning purposes.  
 
 ```
 @article{Huang2016Densely,
