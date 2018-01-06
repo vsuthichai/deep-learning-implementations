@@ -35,7 +35,7 @@ def transition_layers(x, num_transition_layer, keep_prob):
         relu = tf.nn.relu(bn)
         filters = tf.Variable(tf.random_normal((1, 1, C.value, C.value), stddev=(2. / C.value) ** .5), name="conv2d_filters")
         conv2d = tf.nn.conv2d(relu, filter=filters, strides=[1, 1, 1, 1], padding="SAME", data_format="NHWC", name="conv2d")
-        dropout = tf.nn.dropout(conv2d, keep_prob=0.8, name="dropout")
+        dropout = tf.nn.dropout(conv2d, keep_prob=keep_prob, name="dropout")
         avg_pool = tf.nn.avg_pool(dropout, ksize=(1, 2, 2, 1), strides=(1, 2, 2, 1), padding="SAME", data_format="NHWC", name="avg_pool")
         return avg_pool
 
